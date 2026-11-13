@@ -1,5 +1,7 @@
 # Cadence — Musician Practice Log for Android & iOS
 
+[![iOS Build](https://github.com/eddiestuczynski/cadence-digital-practice-log/actions/workflows/ios.yml/badge.svg)](https://github.com/eddiestuczynski/cadence-digital-practice-log/actions/workflows/ios.yml)
+
 **Cadence** is an offline-first practice log for instrumentalists and vocalists, built to structure practice routines, track tempo mastery, maintain connected session notes, and read comfortably on any music stand or stage.
 
 It ships as two native apps that share the same data model, feature set and backup format:
