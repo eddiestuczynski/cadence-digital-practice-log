@@ -3,6 +3,11 @@ import Observation
 
 /// Persistent user preferences backed by `UserDefaults`.
 /// Mirrors the Android DataStore keys so the behaviour is identical.
+///
+/// Each observed setting is exposed as a computed property backed by a private
+/// stored value. That keeps `@Observable` tracking intact while still writing
+/// through to `UserDefaults` on every mutation (property observers on observed
+/// stored properties are not reliably supported by the Observation macro).
 @MainActor
 @Observable
 final class PreferencesStore {
@@ -40,36 +45,77 @@ final class PreferencesStore {
 
     private let defaults: UserDefaults
 
+    private var storedThemeMode: ThemeMode
+    private var storedPreferredDarkVariant: DarkVariant
+    private var storedKeepScreenAwake: Bool
+    private var storedWeeklyGoalMinutes: Int
+    private var storedGlobalInstrumentFilter: String
+    private var storedCustomInstruments: [String]
+    private var storedCustomFocusTags: [String]
+    private var storedInitialSeedCompleted: Bool
+
     var themeMode: ThemeMode {
-        didSet { defaults.set(themeMode.rawValue, forKey: Keys.themeMode) }
+        get { storedThemeMode }
+        set {
+            storedThemeMode = newValue
+            defaults.set(newValue.rawValue, forKey: Keys.themeMode)
+        }
     }
 
     var preferredDarkVariant: DarkVariant {
-        didSet { defaults.set(preferredDarkVariant.rawValue, forKey: Keys.preferredDarkVariant) }
+        get { storedPreferredDarkVariant }
+        set {
+            storedPreferredDarkVariant = newValue
+            defaults.set(newValue.rawValue, forKey: Keys.preferredDarkVariant)
+        }
     }
 
     var keepScreenAwake: Bool {
-        didSet { defaults.set(keepScreenAwake, forKey: Keys.keepScreenAwake) }
+        get { storedKeepScreenAwake }
+        set {
+            storedKeepScreenAwake = newValue
+            defaults.set(newValue, forKey: Keys.keepScreenAwake)
+        }
     }
 
     var weeklyGoalMinutes: Int {
-        didSet { defaults.set(weeklyGoalMinutes, forKey: Keys.weeklyGoalMinutes) }
+        get { storedWeeklyGoalMinutes }
+        set {
+            storedWeeklyGoalMinutes = newValue
+            defaults.set(newValue, forKey: Keys.weeklyGoalMinutes)
+        }
     }
 
     var globalInstrumentFilter: String {
-        didSet { defaults.set(globalInstrumentFilter, forKey: Keys.globalInstrumentFilter) }
+        get { storedGlobalInstrumentFilter }
+        set {
+            storedGlobalInstrumentFilter = newValue
+            defaults.set(newValue, forKey: Keys.globalInstrumentFilter)
+        }
     }
 
     var customInstruments: [String] {
-        didSet { defaults.set(customInstruments.joined(separator: "|"), forKey: Keys.customInstruments) }
+        get { storedCustomInstruments }
+        set {
+            storedCustomInstruments = newValue
+            defaults.set(newValue.joined(separator: "|"), forKey: Keys.customInstruments)
+        }
     }
 
     var customFocusTags: [String] {
-        didSet { defaults.set(customFocusTags.joined(separator: "|"), forKey: Keys.customFocusTags) }
+        get { storedCustomFocusTags }
+        set {
+            storedCustomFocusTags = newValue
+            defaults.set(newValue.joined(separator: "|"), forKey: Keys.customFocusTags)
+        }
     }
 
     var initialSeedCompleted: Bool {
-        didSet { defaults.set(initialSeedCompleted, forKey: Keys.initialSeedCompleted) }
+        get { storedInitialSeedCompleted }
+        set {
+            storedInitialSeedCompleted = newValue
+            defaults.set(newValue, forKey: Keys.initialSeedCompleted)
+        }
     }
 
     private(set) var timerIsRunning: Bool
@@ -81,22 +127,22 @@ final class PreferencesStore {
 
         let storedTheme = defaults.string(forKey: Keys.themeMode) ?? ThemeMode.DAY.rawValue
         if storedTheme == "NIGHT" {
-            themeMode = .NIGHT_STAGE
+            storedThemeMode = .NIGHT_STAGE
         } else {
-            themeMode = ThemeMode(rawValue: storedTheme) ?? .DAY
+            storedThemeMode = ThemeMode(rawValue: storedTheme) ?? .DAY
         }
 
-        preferredDarkVariant = DarkVariant(
+        storedPreferredDarkVariant = DarkVariant(
             rawValue: defaults.string(forKey: Keys.preferredDarkVariant) ?? ""
         ) ?? .STAGE_AMBER
 
-        keepScreenAwake = defaults.object(forKey: Keys.keepScreenAwake) as? Bool ?? true
-        weeklyGoalMinutes = defaults.object(forKey: Keys.weeklyGoalMinutes) as? Int ?? 180
-        globalInstrumentFilter = defaults.string(forKey: Keys.globalInstrumentFilter) ?? "All"
+        storedKeepScreenAwake = defaults.object(forKey: Keys.keepScreenAwake) as? Bool ?? true
+        storedWeeklyGoalMinutes = defaults.object(forKey: Keys.weeklyGoalMinutes) as? Int ?? 180
+        storedGlobalInstrumentFilter = defaults.string(forKey: Keys.globalInstrumentFilter) ?? "All"
 
-        customInstruments = Self.parseList(defaults.string(forKey: Keys.customInstruments))
-        customFocusTags = Self.parseList(defaults.string(forKey: Keys.customFocusTags))
-        initialSeedCompleted = defaults.object(forKey: Keys.initialSeedCompleted) as? Bool ?? false
+        storedCustomInstruments = Self.parseList(defaults.string(forKey: Keys.customInstruments))
+        storedCustomFocusTags = Self.parseList(defaults.string(forKey: Keys.customFocusTags))
+        storedInitialSeedCompleted = defaults.object(forKey: Keys.initialSeedCompleted) as? Bool ?? false
 
         timerIsRunning = defaults.object(forKey: Keys.timerIsRunning) as? Bool ?? false
         timerStartEpochMs = (defaults.object(forKey: Keys.timerStartEpochMs) as? NSNumber)?.int64Value ?? 0

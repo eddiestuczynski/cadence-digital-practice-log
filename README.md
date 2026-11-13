@@ -1,6 +1,13 @@
-# Cadence — Musician Practice Log for Android
+# Cadence — Musician Practice Log for Android & iOS
 
-**Cadence** is an offline-first Android mobile app built with **Kotlin** and **Jetpack Compose (Material 3)** designed specifically for instrumentalists and vocalists to structure practice routines, track tempo mastery, maintain connected session notes, and read comfortably on any music stand or stage.
+**Cadence** is an offline-first practice log for instrumentalists and vocalists, built to structure practice routines, track tempo mastery, maintain connected session notes, and read comfortably on any music stand or stage.
+
+It ships as two native apps that share the same data model, feature set and backup format:
+
+- **Android** — Kotlin + Jetpack Compose (Material 3), Room + DataStore.
+- **iOS / iPadOS** — SwiftUI + SwiftData, targeting iOS 17+, universal for iPhone and iPad.
+
+See [`ios/README.md`](ios/README.md) for the iOS build and architecture notes.
 
 ---
 
@@ -37,23 +44,59 @@
 ---
 
 ## Tech Stack
+
+### Android
 - **UI**: Kotlin 2.0, Jetpack Compose, Material 3, Custom Canvas Charts
 - **Architecture**: MVVM (`StateFlow`, Coroutines, Repository pattern)
 - **Persistence**: Room SQLite (`v2` schema with relational entities) & Jetpack DataStore Preferences
 - **Audio**: Native Android `AudioTrack` static PCM synthesis
 - **Testing**: JUnit 4 unit tests covering Mon–Sun streak math and JSON backup round-trip serialization
 
+### iOS / iPadOS
+- **UI**: SwiftUI, adaptive `NavigationSplitView` / `TabView`, Swift Charts–style custom drawing
+- **Architecture**: `@Observable` store + view model, environment injection
+- **Persistence**: SwiftData (schema mirrors Room with scalar `Int64` ids) & `UserDefaults` preferences
+- **Audio**: `AVAudioEngine` with synthesized PCM click buffers
+- **Build**: Xcode 16+ project, iOS 17.0 deployment target, universal iPhone/iPad
+- **CI**: GitHub Actions builds the app for the iOS Simulator on every `ios/**` change
+
 ---
 
 ## Getting Started
 
-### Install Pre-Built APK
+### Android — install pre-built APK
 Download **`CadencePracticeLog.apk`** from the **Releases** page on this repository and install it on any Android 8.0+ (`minSdk 26`) device.
 
-### Build from Source
+### Android — build from source
 1. Clone this repository and open it in **Android Studio Ladybug (or newer)** with **JDK 17**.
 2. Run unit tests and assemble the debug APK from the terminal:
    ```bash
    ./gradlew testDebugUnitTest assembleDebug
    ```
 3. The compiled APK is output to `app/build/outputs/apk/debug/app-debug.apk`.
+
+### iOS / iPadOS — build from source
+1. Open `ios/Cadence.xcodeproj` in **Xcode 16 or newer**.
+2. Select the **Cadence** scheme and an iPhone or iPad simulator (iOS 17.0+).
+3. Press **Run** (`⌘R`), or build headlessly:
+   ```bash
+   cd ios
+   xcodebuild \
+     -project Cadence.xcodeproj \
+     -scheme Cadence \
+     -sdk iphonesimulator \
+     -destination 'generic/platform=iOS Simulator' \
+     CODE_SIGNING_ALLOWED=NO \
+     build
+   ```
+
+The iOS project has no external package dependencies and is built automatically
+by the `iOS Build` GitHub Actions workflow on every change under `ios/**`.
+
+---
+
+## Cross-platform backups
+
+JSON backups are schema-versioned and byte-compatible between Android and iOS
+(schema `v2`), so practice history, repertoire, routines and preferences can be
+moved between platforms with the in-app export/import controls.
