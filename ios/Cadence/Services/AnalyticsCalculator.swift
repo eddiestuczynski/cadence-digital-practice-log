@@ -116,7 +116,7 @@ enum AnalyticsCalculator {
         guard let monday = cal.date(byAdding: .day, value: -daysFromMonday, to: startOfDay) else {
             return epochMillis
         }
-        return epochMillis(from: monday)
+        return Self.epochMillis(from: monday)
     }
 
     static func advanceWeeks(_ mondayMillis: Int64, by deltaWeeks: Int) -> Int64 {
