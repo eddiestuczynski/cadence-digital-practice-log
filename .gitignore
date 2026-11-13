@@ -23,3 +23,13 @@ captures/
 
 # macOS system files
 .DS_Store
+
+# Xcode / iOS
+DerivedData/
+*.xcuserstate
+xcuserdata/
+ios/.build/
+ios/build/
+*.ipa
+*.dSYM.zip
+*.dSYM
