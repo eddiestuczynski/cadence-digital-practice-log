@@ -46,7 +46,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cadence.practicelog.data.preferences.DarkVariant
 import com.cadence.practicelog.data.preferences.ThemeMode
-import com.cadence.practicelog.ui.theme.activeThemeSubtitle
 
 @Composable
 fun CadenceTopBar(
@@ -84,7 +83,7 @@ fun CadenceTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Brand Title + Active Readability Subtitle
+            // Brand Title (+ active instrument filter pill)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
@@ -103,33 +102,24 @@ fun CadenceTopBar(
                     )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Cadence",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                if (globalInstrumentFilter != "All") {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
                         Text(
-                            text = "Cadence",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onBackground
+                            text = globalInstrumentFilter,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                         )
-                        if (globalInstrumentFilter != "All") {
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Surface(
-                                shape = RoundedCornerShape(50),
-                                color = MaterialTheme.colorScheme.primaryContainer
-                            ) {
-                                Text(
-                                    text = globalInstrumentFilter,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                                )
-                            }
-                        }
                     }
-                    Text(
-                        text = activeThemeSubtitle(currentThemeMode, preferredDarkVariant),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
 

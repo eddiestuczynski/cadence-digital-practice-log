@@ -20,9 +20,12 @@ See [`ios/README.md`](ios/README.md) for the iOS build and architecture notes.
 - **Night Mode (Stage Amber)**: Low-eye-strain warm slate (`#101318`) with warm stand-lamp amber accents (`#F4B860`).
 - **Night Mode (OLED Pit Black)**: True `#000000` pitch-black surfaces for zero light bleed in dark orchestra pits and stages.
 - **System Auto**: Automatically follows Android system light/dark mode with your preferred dark variant.
+- **Calm Palette (Default)**: Neutral ink with a single accent per theme — mahogany by day, amber on stage, gold in the pit. The full mahogany/brass/sage colour palette is one switch away under **Settings → Reduced Accents**.
+- **One Type Voice**: A single system sans-serif family with tighter tracking replaces the old serif/sans mix, so headlines, numerals and labels read as one app.
 - **Distraction-Free Music Stand Focus Mode**: Full-screen practice overlay with oversized stopwatch numerals, giant BPM controls, interactive beat indicators, visual screen-edge pulse, and pinned score/session notes readable from 50–80 cm away, plus automatic screen wake-lock while practicing.
 
 ### 2. Hybrid Practice Studio & Saveable Routine Templates
+- **Three-Card Studio**: Stopwatch (with a one-line routine queue strip), Repertoire & Session Details, and the Precision Metronome. Measures, notes, next goal, focus tags and the session rating live behind a single **Add details** disclosure, so the practice screen stays quiet until you need them.
 - **Quick Single-Piece Mode & Multi-Item Session Queues**: Log single practice blocks immediately or load ordered routine templates (e.g., *Warmup → Etude → Repertoire*) with silent target-duration progress bars.
 - **Timestamp-Anchored Count-Up Stopwatch**: Survives app-switching (such as checking a PDF score reader) and screen rotation without losing elapsed seconds.
 - **Retroactive Logging ("Log Past Session")**: Record practice sessions completed away from your phone with custom dates, times, durations, BPMs, and notes.

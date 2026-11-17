@@ -13,6 +13,11 @@ import androidx.core.view.WindowCompat
 import com.cadence.practicelog.data.preferences.DarkVariant
 import com.cadence.practicelog.data.preferences.ThemeMode
 
+// =========================================================================
+// Full-colour schemes (opt-in). These keep the original mahogany/brass/sage,
+// amber/coral/mint and gold accents for users who want more colour.
+// =========================================================================
+
 private val DaySheetMusicScheme = lightColorScheme(
     primary = DayPrimaryMahogany,
     onPrimary = DayOnPrimary,
@@ -79,6 +84,78 @@ private val NightOledPitScheme = darkColorScheme(
     outline = OledOutline
 )
 
+// =========================================================================
+// Calm schemes (default). Neutral ink for every supporting role, with a
+// single accent per theme: mahogany, amber or gold. Containers collapse to
+// the neutral surface variant so the screen reads as one quiet field.
+// =========================================================================
+
+private val DayCalmScheme = lightColorScheme(
+    primary = DayPrimaryMahogany,
+    onPrimary = DayOnPrimary,
+    primaryContainer = DayPrimaryContainer,
+    onPrimaryContainer = DayOnPrimaryContainer,
+    secondary = DayInkSecondary,
+    onSecondary = DayOnPrimary,
+    secondaryContainer = DaySurfaceVariant,
+    onSecondaryContainer = DayInkPrimary,
+    tertiary = DayInkSecondary,
+    onTertiary = DayOnPrimary,
+    tertiaryContainer = DaySurfaceVariant,
+    onTertiaryContainer = DayInkPrimary,
+    background = DayBackgroundIvory,
+    onBackground = DayInkPrimary,
+    surface = DaySurfaceCream,
+    onSurface = DayInkPrimary,
+    surfaceVariant = DaySurfaceVariant,
+    onSurfaceVariant = DayInkSecondary,
+    outline = DayOutline
+)
+
+private val NightStageCalmScheme = darkColorScheme(
+    primary = NightPrimaryAmber,
+    onPrimary = NightOnPrimary,
+    primaryContainer = NightPrimaryContainer,
+    onPrimaryContainer = NightOnPrimaryContainer,
+    secondary = NightTextSecondary,
+    onSecondary = NightBackgroundObsidian,
+    secondaryContainer = NightSurfaceVariant,
+    onSecondaryContainer = NightTextParchment,
+    tertiary = NightTextSecondary,
+    onTertiary = NightBackgroundObsidian,
+    tertiaryContainer = NightSurfaceVariant,
+    onTertiaryContainer = NightTextParchment,
+    background = NightBackgroundObsidian,
+    onBackground = NightTextParchment,
+    surface = NightSurfaceSlate,
+    onSurface = NightTextParchment,
+    surfaceVariant = NightSurfaceVariant,
+    onSurfaceVariant = NightTextSecondary,
+    outline = NightOutline
+)
+
+private val NightOledCalmScheme = darkColorScheme(
+    primary = OledPrimaryGold,
+    onPrimary = OledOnPrimary,
+    primaryContainer = OledPrimaryContainer,
+    onPrimaryContainer = OledOnPrimaryContainer,
+    secondary = OledTextSecondary,
+    onSecondary = OledBackgroundPureBlack,
+    secondaryContainer = OledSurfaceVariant,
+    onSecondaryContainer = OledTextCrispParchment,
+    tertiary = OledTextSecondary,
+    onTertiary = OledBackgroundPureBlack,
+    tertiaryContainer = OledSurfaceVariant,
+    onTertiaryContainer = OledTextCrispParchment,
+    background = OledBackgroundPureBlack,
+    onBackground = OledTextCrispParchment,
+    surface = OledSurfaceCharcoal,
+    onSurface = OledTextCrispParchment,
+    surfaceVariant = OledSurfaceVariant,
+    onSurfaceVariant = OledTextSecondary,
+    outline = OledOutline
+)
+
 @Composable
 fun isNightModeActive(themeMode: ThemeMode): Boolean {
     return when (themeMode) {
@@ -89,36 +166,28 @@ fun isNightModeActive(themeMode: ThemeMode): Boolean {
 }
 
 @Composable
-fun activeThemeSubtitle(themeMode: ThemeMode, preferredDarkVariant: DarkVariant): String {
-    val sysDark = isSystemInDarkTheme()
-    return when (themeMode) {
-        ThemeMode.DAY -> "Day • Sheet Music Mode"
-        ThemeMode.NIGHT_STAGE -> "Night • Stage Amber Mode"
-        ThemeMode.NIGHT_OLED -> "Night • OLED Pit Black"
-        ThemeMode.SYSTEM -> if (sysDark) {
-            if (preferredDarkVariant == DarkVariant.OLED_BLACK) "Auto • OLED Pit Black"
-            else "Auto • Stage Amber Mode"
-        } else {
-            "Auto • Sheet Music Day"
-        }
-    }
-}
-
-@Composable
 fun CadencePracticeLogTheme(
     themeMode: ThemeMode = ThemeMode.DAY,
     preferredDarkVariant: DarkVariant = DarkVariant.STAGE_AMBER,
+    reducedAccents: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val systemDark = isSystemInDarkTheme()
     val colorScheme = when (themeMode) {
-        ThemeMode.DAY -> DaySheetMusicScheme
-        ThemeMode.NIGHT_STAGE -> NightStageAmberScheme
-        ThemeMode.NIGHT_OLED -> NightOledPitScheme
+        ThemeMode.DAY ->
+            if (reducedAccents) DayCalmScheme else DaySheetMusicScheme
+        ThemeMode.NIGHT_STAGE ->
+            if (reducedAccents) NightStageCalmScheme else NightStageAmberScheme
+        ThemeMode.NIGHT_OLED ->
+            if (reducedAccents) NightOledCalmScheme else NightOledPitScheme
         ThemeMode.SYSTEM -> {
-            if (!systemDark) DaySheetMusicScheme
-            else if (preferredDarkVariant == DarkVariant.OLED_BLACK) NightOledPitScheme
-            else NightStageAmberScheme
+            if (!systemDark) {
+                if (reducedAccents) DayCalmScheme else DaySheetMusicScheme
+            } else if (preferredDarkVariant == DarkVariant.OLED_BLACK) {
+                if (reducedAccents) NightOledCalmScheme else NightOledPitScheme
+            } else {
+                if (reducedAccents) NightStageCalmScheme else NightStageAmberScheme
+            }
         }
     }
     val isDark = themeMode == ThemeMode.NIGHT_STAGE ||

@@ -44,6 +44,7 @@ class UserPreferencesRepository(private val context: Context) {
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val PREFERRED_DARK_VARIANT = stringPreferencesKey("preferred_dark_variant")
+        val REDUCED_ACCENTS = booleanPreferencesKey("reduced_accents")
         val KEEP_SCREEN_AWAKE = booleanPreferencesKey("keep_screen_awake")
         val WEEKLY_GOAL_MINUTES = intPreferencesKey("weekly_goal_minutes")
         val DEFAULT_INSTRUMENT = stringPreferencesKey("default_instrument")
@@ -68,6 +69,14 @@ class UserPreferencesRepository(private val context: Context) {
     val preferredDarkVariantFlow: Flow<DarkVariant> = context.dataStore.data.map { prefs ->
         val raw = prefs[Keys.PREFERRED_DARK_VARIANT] ?: DarkVariant.STAGE_AMBER.name
         runCatching { DarkVariant.valueOf(raw) }.getOrDefault(DarkVariant.STAGE_AMBER)
+    }
+
+    /**
+     * Calm palette by default: neutral ink plus one accent per theme.
+     * Users can opt into the original multi-accent palettes from Settings.
+     */
+    val reducedAccentsFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.REDUCED_ACCENTS] ?: true
     }
 
     val keepScreenAwakeFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -172,6 +181,12 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun setKeepScreenAwake(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[Keys.KEEP_SCREEN_AWAKE] = enabled
+        }
+    }
+
+    suspend fun setReducedAccents(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.REDUCED_ACCENTS] = enabled
         }
     }
 

@@ -103,6 +103,9 @@ class MainViewModel(
     val preferredDarkVariant: StateFlow<DarkVariant> = preferences.preferredDarkVariantFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DarkVariant.STAGE_AMBER)
 
+    val reducedAccents: StateFlow<Boolean> = preferences.reducedAccentsFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
     val keepScreenAwake: StateFlow<Boolean> = preferences.keepScreenAwakeFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
@@ -195,6 +198,10 @@ class MainViewModel(
 
     fun setKeepScreenAwake(enabled: Boolean) {
         viewModelScope.launch { preferences.setKeepScreenAwake(enabled) }
+    }
+
+    fun setReducedAccents(enabled: Boolean) {
+        viewModelScope.launch { preferences.setReducedAccents(enabled) }
     }
 
     fun updateWeeklyGoalMinutes(minutes: Int) {

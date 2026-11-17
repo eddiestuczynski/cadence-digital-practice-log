@@ -1,6 +1,5 @@
 package com.cadence.practicelog.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -59,6 +58,7 @@ import com.cadence.practicelog.data.preferences.ThemeMode
 fun SettingsAndDataSheet(
     themeMode: ThemeMode,
     preferredDarkVariant: DarkVariant,
+    reducedAccents: Boolean,
     keepScreenAwake: Boolean,
     globalInstrumentFilter: String,
     allInstruments: List<String>,
@@ -67,6 +67,7 @@ fun SettingsAndDataSheet(
     statusMessage: String?,
     onSelectThemeMode: (ThemeMode) -> Unit,
     onSelectDarkVariant: (DarkVariant) -> Unit,
+    onReducedAccentsChange: (Boolean) -> Unit,
     onKeepScreenAwakeChange: (Boolean) -> Unit,
     onSelectGlobalInstrument: (String) -> Unit,
     onAddCustomInstrument: (String) -> Unit,
@@ -132,7 +133,7 @@ fun SettingsAndDataSheet(
             Card(
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)),
+                border = null,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -180,6 +181,30 @@ fun SettingsAndDataSheet(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
+                                text = "Reduced Accents (Calm Palette)",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = "Neutral ink with a single accent per theme. Turn off for the full mahogany, brass and sage palette.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = reducedAccents,
+                            onCheckedChange = onReducedAccentsChange
+                        )
+                    }
+
+                    HorizontalDivider()
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
                                 text = "Keep Screen Awake While Practicing",
                                 style = MaterialTheme.typography.titleMedium
                             )
@@ -201,7 +226,7 @@ fun SettingsAndDataSheet(
             Card(
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)),
+                border = null,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -307,7 +332,7 @@ fun SettingsAndDataSheet(
             Card(
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)),
+                border = null,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -354,7 +379,7 @@ fun SettingsAndDataSheet(
             Card(
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)),
+                border = null,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(

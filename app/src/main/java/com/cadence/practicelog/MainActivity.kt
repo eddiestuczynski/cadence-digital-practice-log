@@ -52,7 +52,7 @@ enum class CadenceTab(val label: String, val icon: ImageVector) {
     STUDIO("Studio", Icons.Default.PlayCircleFilled),
     JOURNAL("Journal", Icons.Default.HistoryEdu),
     REPERTOIRE("Repertoire", Icons.Default.LibraryMusic),
-    ANALYTICS("Stats & BPM", Icons.Default.Analytics)
+    ANALYTICS("Stats", Icons.Default.Analytics)
 }
 
 class MainActivity : ComponentActivity() {
@@ -81,6 +81,7 @@ fun CadencePracticeLogApp(viewModel: MainViewModel) {
 
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val preferredDarkVariant by viewModel.preferredDarkVariant.collectAsStateWithLifecycle()
+    val reducedAccents by viewModel.reducedAccents.collectAsStateWithLifecycle()
     val keepScreenAwake by viewModel.keepScreenAwake.collectAsStateWithLifecycle()
     val weeklyGoalMinutes by viewModel.weeklyGoalMinutes.collectAsStateWithLifecycle()
     val globalInstrumentFilter by viewModel.globalInstrumentFilter.collectAsStateWithLifecycle()
@@ -168,7 +169,8 @@ fun CadencePracticeLogApp(viewModel: MainViewModel) {
 
     CadencePracticeLogTheme(
         themeMode = themeMode,
-        preferredDarkVariant = preferredDarkVariant
+        preferredDarkVariant = preferredDarkVariant,
+        reducedAccents = reducedAccents
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -293,6 +295,7 @@ fun CadencePracticeLogApp(viewModel: MainViewModel) {
             SettingsAndDataSheet(
                 themeMode = themeMode,
                 preferredDarkVariant = preferredDarkVariant,
+                reducedAccents = reducedAccents,
                 keepScreenAwake = keepScreenAwake,
                 globalInstrumentFilter = globalInstrumentFilter,
                 allInstruments = allInstruments,
@@ -301,6 +304,7 @@ fun CadencePracticeLogApp(viewModel: MainViewModel) {
                 statusMessage = settingsStatusMessage,
                 onSelectThemeMode = viewModel::setThemeMode,
                 onSelectDarkVariant = viewModel::setPreferredDarkVariant,
+                onReducedAccentsChange = viewModel::setReducedAccents,
                 onKeepScreenAwakeChange = viewModel::setKeepScreenAwake,
                 onSelectGlobalInstrument = viewModel::setGlobalInstrumentFilter,
                 onAddCustomInstrument = viewModel::addCustomInstrument,

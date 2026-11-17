@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -82,6 +84,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.cadence.practicelog.data.local.PieceCategory
 import com.cadence.practicelog.data.local.PieceSectionEntity
@@ -163,6 +166,7 @@ fun PracticeStudioScreen(
     var showSaveRoutineDialog by remember { mutableStateOf(false) }
     var showLogPastDialog by remember { mutableStateOf(false) }
     var showQuickTagDialog by remember { mutableStateOf(false) }
+    var showSessionDetails by remember { mutableStateOf(false) }
 
     // Resolve Continuity Context for the selected Piece / Movement
     val currentPieceWithSections = remember(studioState.selectedPieceId, piecesWithSections) {
@@ -280,54 +284,33 @@ fun PracticeStudioScreen(
             }
         }
 
-        // ACTIVE MULTI-ITEM SESSION QUEUE CARD (when in Queue / Routine mode)
-        if (studioState.isQueueMode && studioState.queueItems.isNotEmpty()) {
-            Card(
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
-                modifier = Modifier.fillMaxWidth()
+        // 1. LIVE PRACTICE STOPWATCH CARD (Count-Up + Silent Target Progress Bar)
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = null,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "ACTIVE SESSION QUEUE",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = studioState.activeRoutineName,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                        Row {
-                            TextButton(onClick = { showAddQueueBlockDialog = true }) {
-                                Text("+ Block")
-                            }
-                            TextButton(onClick = { showSaveRoutineDialog = true }) {
-                                Text("Save Template")
-                            }
-                            TextButton(onClick = onExitQueueMode) {
-                                Text("Exit")
-                            }
-                        }
-                    }
-
+                // Compact queue strip — replaces the old standalone queue card.
+                if (studioState.isQueueMode && studioState.queueItems.isNotEmpty()) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Text(
+                            text = studioState.activeRoutineName,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                         studioState.queueItems.forEachIndexed { idx, qItem ->
                             val isCurrent = idx == studioState.activeQueueIndex
                             val prefix = when {
@@ -338,29 +321,22 @@ fun PracticeStudioScreen(
                             FilterChip(
                                 selected = isCurrent,
                                 onClick = { onSelectQueueIndex(idx) },
-                                label = {
-                                    Text("$prefix${qItem.title} (${qItem.targetMinutes}m)")
-                                }
+                                label = { Text("$prefix${qItem.title} (${qItem.targetMinutes}m)") }
                             )
                         }
+                        TextButton(onClick = { showAddQueueBlockDialog = true }) {
+                            Text("+ Block")
+                        }
+                        TextButton(onClick = { showSaveRoutineDialog = true }) {
+                            Text("Save")
+                        }
+                        TextButton(onClick = onExitQueueMode) {
+                            Text("Exit")
+                        }
                     }
+                    Spacer(modifier = Modifier.height(6.dp))
                 }
-            }
-        }
 
-        // 1. LIVE PRACTICE STOPWATCH CARD (Count-Up + Silent Target Progress Bar)
-        Card(
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -508,11 +484,11 @@ fun PracticeStudioScreen(
             }
         }
 
-        // 2. PIECE, MOVEMENT & PINNED CONTINUITY CARD
+        // 2. REPERTOIRE & SESSION DETAILS (combined piece selector + notes)
         Card(
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+            border = null,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -526,11 +502,18 @@ fun PracticeStudioScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Repertoire, Movement & Continuity",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Repertoire & Session Details",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "What you are practicing, and what you want to remember",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                     if (!studioState.isQueueMode) {
                         TextButton(onClick = { showAddQueueBlockDialog = true }) {
                             Text("+ Queue")
@@ -538,7 +521,7 @@ fun PracticeStudioScreen(
                     }
                 }
 
-                // Dropdown selector for Repertoire piece + sub-sections
+                // Compact one-line piece selector
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedButton(
                         onClick = { showPieceDropdown = true },
@@ -547,12 +530,24 @@ fun PracticeStudioScreen(
                     ) {
                         val display = when {
                             currentPiece != null && currentSection != null ->
-                                "${currentPiece.title} — ${currentSection.name} (${currentSection.timeSignatureLabel})"
+                                "${currentPiece.title} › ${currentSection.name}"
                             currentPiece != null ->
-                                "${currentPiece.title} • ${currentPiece.timeSignatureLabel} (Best ${currentPiece.bestBpm}/${currentPiece.targetBpm} BPM)"
+                                "${currentPiece.title} • ${currentPiece.timeSignatureLabel}"
                             else -> "Custom / General Warmup & Technique"
                         }
-                        Text(text = display, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+                        Text(
+                            text = display,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Start
+                        )
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "Choose piece",
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
 
                     DropdownMenu(
@@ -631,8 +626,8 @@ fun PracticeStudioScreen(
                 if (pinnedNextGoal.isNotBlank() || standingScoreNotes.isNotBlank() || previousSessionSummary.isNotBlank()) {
                     Surface(
                         shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        border = null,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -679,43 +674,224 @@ fun PracticeStudioScreen(
                     }
                 }
 
-                OutlinedTextField(
-                    value = studioState.customPieceTitle,
-                    onValueChange = onCustomTitleChange,
-                    label = { Text("Piece / Exercise Title") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Session details live behind a disclosure so the card stays quiet
+                val detailsFilled = listOf(
+                    studioState.measuresPracticed.isNotBlank(),
+                    studioState.sessionNotes.isNotBlank(),
+                    studioState.nextSessionGoal.isNotBlank(),
+                    studioState.selectedFocusTags.isNotEmpty(),
+                    studioState.moodRating > 0
+                ).count { it }
 
-                // Category & Instrument Selector Pills
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { showSessionDetails = !showSessionDetails }
+                        .padding(vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PieceCategory.entries.forEach { cat ->
-                        FilterChip(
-                            selected = studioState.selectedCategory == cat,
-                            onClick = { onSelectCategory(cat) },
-                            label = { Text(cat.shortLabel) }
+                    Icon(
+                        imageVector = Icons.Default.EditNote,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (showSessionDetails) "Hide session details" else "Add details",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (detailsFilled > 0) {
+                        Text(
+                            text = "$detailsFilled added",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(modifier = Modifier.width(4.dp))
                     }
+                    Icon(
+                        imageVector = if (showSessionDetails) {
+                            Icons.Default.KeyboardArrowUp
+                        } else {
+                            Icons.Default.KeyboardArrowDown
+                        },
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    allInstruments.forEach { instrument ->
-                        val selected = studioState.selectedInstrument.equals(instrument, ignoreCase = true)
-                        FilterChip(
-                            selected = selected,
-                            onClick = { onSelectInstrument(instrument) },
-                            label = { Text(instrument) }
+                AnimatedVisibility(visible = showSessionDetails) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = studioState.customPieceTitle,
+                            onValueChange = onCustomTitleChange,
+                            label = { Text("Piece / Exercise Title") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
                         )
+
+                        // Category & Instrument Selector Pills
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            PieceCategory.entries.forEach { cat ->
+                                FilterChip(
+                                    selected = studioState.selectedCategory == cat,
+                                    onClick = { onSelectCategory(cat) },
+                                    label = { Text(cat.shortLabel) }
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            allInstruments.forEach { instrument ->
+                                val selected = studioState.selectedInstrument.equals(instrument, ignoreCase = true)
+                                FilterChip(
+                                    selected = selected,
+                                    onClick = { onSelectInstrument(instrument) },
+                                    label = { Text(instrument) }
+                                )
+                            }
+                        }
+
+                        // Measures / Passage Practiced Quick Input
+                        OutlinedTextField(
+                            value = studioState.measuresPracticed,
+                            onValueChange = onMeasuresChange,
+                            label = { Text("Measures / Section Practiced (optional)") },
+                            placeholder = { Text("e.g., m. 24–32, Cadenza, Bridge") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Multi-line readable text input for practice session notes
+                        OutlinedTextField(
+                            value = studioState.sessionNotes,
+                            onValueChange = onNotesChange,
+                            label = { Text("Session Notes (Technique, Fingerings, Breakthroughs)") },
+                            placeholder = {
+                                Text("e.g., Isolated m. 24–32 hands separately at 76 BPM. Watch left-hand 4th finger in descending scale...")
+                            },
+                            minLines = 4,
+                            maxLines = 8,
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Quick-Insert Musician Note Templates
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            QUICK_NOTE_TEMPLATES.forEach { snippet ->
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    border = null,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(50))
+                                        .clickable { onAppendNoteTemplate(snippet) }
+                                ) {
+                                    Text(
+                                        text = "+ $snippet",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Next Session Goal (automatically pins to the piece/movement for next time!)
+                        OutlinedTextField(
+                            value = studioState.nextSessionGoal,
+                            onValueChange = onNextGoalChange,
+                            label = { Text("Goal for Next Session (Pins to top next time)") },
+                            placeholder = { Text("e.g., Connect m. 32–40 at 84 BPM without pedal blur") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Focus Area Tags (Built-in + Custom + Quick Add)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Session Focus Tags",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            TextButton(onClick = { showQuickTagDialog = true }) {
+                                Text("+ Custom Tag")
+                            }
+                        }
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            allFocusTags.forEach { tag ->
+                                val isSelected = studioState.selectedFocusTags.contains(tag)
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { onToggleFocusTag(tag) },
+                                    label = { Text(tag) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                )
+                            }
+                        }
+
+                        // Session Quality / Focus Rating (1..5 stars)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Session Quality & Focus:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Row {
+                                for (star in 1..5) {
+                                    IconButton(
+                                        onClick = { onMoodRatingChange(star) },
+                                        modifier = Modifier.size(34.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            contentDescription = "$star Stars",
+                                            tint = if (star <= studioState.moodRating) {
+                                                MaterialTheme.colorScheme.secondary
+                                            } else {
+                                                MaterialTheme.colorScheme.outline
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -725,10 +901,14 @@ fun PracticeStudioScreen(
         Card(
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(
-                width = if (beatFlash && studioState.metronomeMuted) 3.5.dp else if (beatFlash) 2.dp else 1.dp,
-                color = metronomeBorderColor
-            ),
+            border = if (beatFlash) {
+                BorderStroke(
+                    width = if (studioState.metronomeMuted) 3.5.dp else 2.dp,
+                    color = metronomeBorderColor
+                )
+            } else {
+                null
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -1001,191 +1181,31 @@ fun PracticeStudioScreen(
             }
         }
 
-        // 4. CONNECTED MUSICIAN PRACTICE SESSION NOTES CARD
-        Card(
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
-            modifier = Modifier.fillMaxWidth()
+        // Standalone save action — outside the cards so the screen ends quietly
+        Button(
+            onClick = onSaveSession,
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.EditNote,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            text = "Practice Session Notes & Next Goal",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Track exact measures worked on, technical notes, and pin your next goal",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                // Measures / Passage Practiced Quick Input
-                OutlinedTextField(
-                    value = studioState.measuresPracticed,
-                    onValueChange = onMeasuresChange,
-                    label = { Text("Measures / Section Practiced (optional)") },
-                    placeholder = { Text("e.g., m. 24–32, Cadenza, Bridge") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Multi-line readable text input for practice session notes
-                OutlinedTextField(
-                    value = studioState.sessionNotes,
-                    onValueChange = onNotesChange,
-                    label = { Text("Session Notes (Technique, Fingerings, Breakthroughs)") },
-                    placeholder = {
-                        Text("e.g., Isolated m. 24–32 hands separately at 76 BPM. Watch left-hand 4th finger in descending scale...")
-                    },
-                    minLines = 4,
-                    maxLines = 8,
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Quick-Insert Musician Note Templates
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    QUICK_NOTE_TEMPLATES.forEach { snippet ->
-                        Surface(
-                            shape = RoundedCornerShape(50),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50))
-                                .clickable { onAppendNoteTemplate(snippet) }
-                        ) {
-                            Text(
-                                text = "+ $snippet",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                            )
-                        }
-                    }
-                }
-
-                // Next Session Goal (automatically pins to the piece/movement for next time!)
-                OutlinedTextField(
-                    value = studioState.nextSessionGoal,
-                    onValueChange = onNextGoalChange,
-                    label = { Text("Goal for Next Session (Pins to top next time)") },
-                    placeholder = { Text("e.g., Connect m. 32–40 at 84 BPM without pedal blur") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Focus Area Tags (Built-in + Custom + Quick Add)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Session Focus Tags",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    TextButton(onClick = { showQuickTagDialog = true }) {
-                        Text("+ Custom Tag")
-                    }
-                }
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    allFocusTags.forEach { tag ->
-                        val isSelected = studioState.selectedFocusTags.contains(tag)
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = { onToggleFocusTag(tag) },
-                            label = { Text(tag) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        )
-                    }
-                }
-
-                // Session Quality / Focus Rating (1..5 stars)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Session Quality & Focus:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Row {
-                        for (star in 1..5) {
-                            IconButton(
-                                onClick = { onMoodRatingChange(star) },
-                                modifier = Modifier.size(34.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = "$star Stars",
-                                    tint = if (star <= studioState.moodRating) {
-                                        MaterialTheme.colorScheme.secondary
-                                    } else {
-                                        MaterialTheme.colorScheme.outline
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Save Practice Session Button
-                Button(
-                    onClick = onSaveSession,
-                    shape = RoundedCornerShape(14.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp)
-                ) {
-                    Icon(Icons.Default.Save, contentDescription = null)
-                    Spacer(modifier = Modifier.width(10.dp))
-                    val fallbackMins = if (studioState.targetDurationMinutes > 0) studioState.targetDurationMinutes else 15
-                    val displayMins = if (studioState.elapsedSeconds >= 60) {
-                        "${(studioState.elapsedSeconds + 30) / 60}m"
-                    } else {
-                        "${fallbackMins}m Quick"
-                    }
-                    Text(
-                        text = if (studioState.isQueueMode) {
-                            "Log Block & Advance ($displayMins @ ${studioState.metronomeBpm} BPM)"
-                        } else {
-                            "Save Practice Session ($displayMins @ ${studioState.metronomeBpm} BPM)"
-                        },
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center
-                    )
-                }
+            Icon(Icons.Default.Save, contentDescription = null)
+            Spacer(modifier = Modifier.width(10.dp))
+            val fallbackMins = if (studioState.targetDurationMinutes > 0) studioState.targetDurationMinutes else 15
+            val displayMins = if (studioState.elapsedSeconds >= 60) {
+                "${(studioState.elapsedSeconds + 30) / 60}m"
+            } else {
+                "${fallbackMins}m Quick"
             }
+            Text(
+                text = if (studioState.isQueueMode) {
+                    "Log Block & Advance ($displayMins @ ${studioState.metronomeBpm} BPM)"
+                } else {
+                    "Save Practice Session ($displayMins @ ${studioState.metronomeBpm} BPM)"
+                },
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
         }
     }
 
