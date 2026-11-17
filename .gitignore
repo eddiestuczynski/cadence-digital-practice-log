@@ -4,6 +4,9 @@
 *.ap_
 *.dex
 
+# Exception: compiled APKs kept in the repo for showcase / direct download
+!/dist/*.apk
+
 # Gradle & build outputs
 .gradle/
 build/
