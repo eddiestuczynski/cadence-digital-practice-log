@@ -1,2 +1,2 @@
 # Add project specific ProGuard rules here.
--keep class com.cadence.practicelog.data.local.** { *; }
+-keep class com.ostinato.practicelog.data.local.** { *; }

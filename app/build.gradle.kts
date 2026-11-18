@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace = "com.cadence.practicelog"
+    namespace = "com.ostinato.practicelog"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.cadence.practicelog"
+        applicationId = "com.ostinato.practicelog"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "2.0.0"
+        versionCode = 3
+        versionName = "3.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

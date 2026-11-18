@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build Cadence for iOS Simulator
+    name: Build Ostinato for iOS Simulator
     runs-on: macos-15
     timeout-minutes: 30
 
@@ -37,13 +37,13 @@ jobs:
           xcrun --sdk iphonesimulator --show-sdk-version
 
       - name: Parse Swift sources
-        run: swiftc -parse $(find ios/Cadence -name '*.swift')
+        run: swiftc -parse $(find ios/Ostinato -name '*.swift')
 
       - name: Build for iOS Simulator
         run: |
           xcodebuild \
-            -project ios/Cadence.xcodeproj \
-            -scheme Cadence \
+            -project ios/Ostinato.xcodeproj \
+            -scheme Ostinato \
             -configuration Debug \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \

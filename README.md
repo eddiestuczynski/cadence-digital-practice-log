@@ -1,8 +1,8 @@
-# Cadence — Musician Practice Log for Android & iOS
+# Ostinato — Musician Practice Log for Android & iOS
 
-[![iOS Build](https://github.com/eddiestuczynski/cadence-digital-practice-log/actions/workflows/ios.yml/badge.svg)](https://github.com/eddiestuczynski/cadence-digital-practice-log/actions/workflows/ios.yml)
+[![iOS Build](https://github.com/eddiestuczynski/ostinato-practice-log/actions/workflows/ios.yml/badge.svg)](https://github.com/eddiestuczynski/ostinato-practice-log/actions/workflows/ios.yml)
 
-**Cadence** is an offline-first practice log for instrumentalists and vocalists, built to structure practice routines, track tempo mastery, maintain connected session notes, and read comfortably on any music stand or stage.
+**Ostinato** is an offline-first practice log for instrumentalists and vocalists, built to structure practice routines, track tempo mastery, maintain connected session notes, and read comfortably on any music stand or stage.
 
 It ships as two native apps that share the same data model, feature set and backup format:
 
@@ -70,7 +70,7 @@ See [`ios/README.md`](ios/README.md) for the iOS build and architecture notes.
 ## Getting Started
 
 ### Android — install pre-built APK
-Download **`CadencePracticeLog.apk`** from the **Releases** page on this repository and install it on any Android 8.0+ (`minSdk 26`) device.
+Download **`ostinato-3.0.0-debug.apk`** from the **Releases** page on this repository (or `dist/` in the source tree) and install it on any Android 8.0+ (`minSdk 26`) device.
 
 ### Android — build from source
 1. Clone this repository and open it in **Android Studio Ladybug (or newer)** with **JDK 17**.
@@ -81,14 +81,14 @@ Download **`CadencePracticeLog.apk`** from the **Releases** page on this reposit
 3. The compiled APK is output to `app/build/outputs/apk/debug/app-debug.apk`.
 
 ### iOS / iPadOS — build from source
-1. Open `ios/Cadence.xcodeproj` in **Xcode 16 or newer**.
-2. Select the **Cadence** scheme and an iPhone or iPad simulator (iOS 17.0+).
+1. Open `ios/Ostinato.xcodeproj` in **Xcode 16 or newer**.
+2. Select the **Ostinato** scheme and an iPhone or iPad simulator (iOS 17.0+).
 3. Press **Run** (`⌘R`), or build headlessly:
    ```bash
    cd ios
    xcodebuild \
-     -project Cadence.xcodeproj \
-     -scheme Cadence \
+     -project Ostinato.xcodeproj \
+     -scheme Ostinato \
      -sdk iphonesimulator \
      -destination 'generic/platform=iOS Simulator' \
      CODE_SIGNING_ALLOWED=NO \

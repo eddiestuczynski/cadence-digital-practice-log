@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CadencePracticeLog"
+rootProject.name = "Ostinato"
 include(":app")

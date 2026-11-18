@@ -1,6 +1,6 @@
-# Cadence for iOS & iPadOS
+# Ostinato for iOS & iPadOS
 
-A native **SwiftUI** port of the Cadence musician practice log. The app targets
+A native **SwiftUI** port of the Ostinato musician practice log. The app targets
 **iOS / iPadOS 17.0+** and is built as a single universal app (iPhone + iPad).
 
 This directory is the complete Xcode project. It has no external dependencies —
@@ -19,20 +19,20 @@ everything ships with the Apple SDKs.
 
 ## Open & run
 
-1. Open `ios/Cadence.xcodeproj` in Xcode.
-2. Select the **Cadence** scheme and an iPhone or iPad simulator.
+1. Open `ios/Ostinato.xcodeproj` in Xcode.
+2. Select the **Ostinato** scheme and an iPhone or iPad simulator.
 3. Press **Run** (`⌘R`).
 
 The project uses a *file-system synchronized group*, so any `.swift` file added
-under `ios/Cadence/` is picked up automatically — no manual project edits.
+under `ios/Ostinato/` is picked up automatically — no manual project edits.
 
 ### Build from the command line
 
 ```bash
 cd ios
 xcodebuild \
-  -project Cadence.xcodeproj \
-  -scheme Cadence \
+  -project Ostinato.xcodeproj \
+  -scheme Ostinato \
   -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' \
   CODE_SIGNING_ALLOWED=NO \
@@ -57,8 +57,8 @@ via `.github/workflows/ios.yml`.
 Key source folders:
 
 ```
-ios/Cadence/
-├── CadenceApp.swift          # App entry, SwiftData container, first-launch seed
+ios/Ostinato/
+├── OstinatoApp.swift          # App entry, SwiftData container, first-launch seed
 ├── Models/                   # SwiftData entities + enums
 ├── Services/                 # Store, preferences, analytics, backup, metronome, demo data
 ├── ViewModels/               # StudioViewModel (timer, queue, tempo, save/log)
